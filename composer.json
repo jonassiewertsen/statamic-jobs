@@ -1,0 +1,45 @@
+{
+  "name": "jonassiewertsen/statamic-jobs",
+  "description": "",
+  "keywords": [
+    "Statamic",
+    "Addon",
+    "Laravel"
+  ],
+  "license": "MIT",
+  "type": "statamic-addon",
+  "autoload": {
+    "psr-4": {
+      "Jonassiewertsen\\Jobs\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Jonassiewertsen\\Jobs\\Tests\\": "tests"
+    }
+  },
+  "authors": [
+    {
+      "name": "Jonas Siewertsen"
+    }
+  ],
+  "support": {
+    "email": "mail@jonassiewertsen.com"
+  },
+  "require": {
+    "php": "^8.0",
+    "illuminate/support": "^8.0",
+    "statamic/cms": "3.1.*"
+  },
+  "extra": {
+    "statamic": {
+      "name": "Jobs",
+      "description": ""
+    },
+    "laravel": {
+      "providers": [
+        "Jonassiewertsen\\Jobs\\ServiceProvider"
+      ]
+    }
+  }
+}
