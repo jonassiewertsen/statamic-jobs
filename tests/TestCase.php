@@ -25,7 +25,6 @@ class TestCase extends OrchestraTestCase
         parent::tearDown();
     }
 
-
     /**
      * Setup the test environment.
      */
