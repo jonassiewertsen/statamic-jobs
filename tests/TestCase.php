@@ -1,0 +1,166 @@
+<?php
+
+namespace Jonassiewertsen\Jobs\Tests;
+
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Foundation\Testing\WithFaker;
+use Orchestra\Testbench\TestCase as OrchestraTestCase;
+use Statamic\Extend\Manifest;
+use Statamic\Facades\Blueprint;
+use Statamic\Stache\Stores\UsersStore;
+use Statamic\Statamic;
+
+class TestCase extends OrchestraTestCase
+{
+    use DatabaseMigrations;
+    use WithFaker;
+    use PreventSavingStacheItemsToDisk;
+
+    protected $shouldFakeVersion = true;
+
+    public function tearDown(): void
+    {
+        $this->deleteFakeStacheDirectory();
+
+        parent::tearDown();
+    }
+
+
+    /**
+     * Setup the test environment.
+     */
+    protected function setUp(): void
+    {
+        require_once __DIR__.'/ConsoleKernel.php';
+
+        parent::setUp();
+
+        $this->preventSavingStacheItemsToDisk();
+
+        if ($this->shouldFakeVersion) {
+            \Facades\Statamic\Version::shouldReceive('get')->andReturn('3.0.0-testing');
+            $this->addToAssertionCount(-1); // Dont want to assert this
+        }
+
+//        $this->withFactories(__DIR__.'/../database/factories');
+
+        Blueprint::setDirectory(__DIR__.'/../resources/blueprints');
+
+        $this->setCountry();
+    }
+
+    /**
+     * Load package service provider.
+     * @param \Illuminate\Foundation\Application $app
+     * @return array
+     */
+    protected function getPackageProviders($app)
+    {
+        return [
+            \Statamic\Providers\StatamicServiceProvider::class,
+            \Jonassiewertsen\Jobs\ServiceProvider::class,
+        ];
+    }
+
+    /**
+     * Load package alias.
+     * @param \Illuminate\Foundation\Application $app
+     * @return array
+     */
+    protected function getPackageAliases($app)
+    {
+        return [
+            'Statamic' => Statamic::class,
+        ];
+    }
+
+    /**
+     * Load Environment.
+     * @param \Illuminate\Foundation\Application $app
+     */
+    protected function getEnvironmentSetUp($app)
+    {
+        parent::getEnvironmentSetUp($app);
+
+        $app->make(Manifest::class)->manifest = [
+            'jonassiewertsen/statamic-jobs' => [
+                'id'        => 'jonassiewertsen/statamic-jobs',
+                'namespace' => 'Jonassiewertsen\\Jobs\\',
+            ],
+        ];
+    }
+
+    /**
+     * Resolve the Application Configuration and set the Statamic configuration.
+     * @param \Illuminate\Foundation\Application $app
+     */
+    protected function resolveApplicationConfiguration($app)
+    {
+        parent::resolveApplicationConfiguration($app);
+
+        $configs = [
+            'assets', 'cp', 'routes', 'static_caching', 'sites', 'stache', 'system',
+        ];
+
+        foreach ($configs as $config) {
+            $app['config']->set("statamic.$config", require(__DIR__."/../vendor/statamic/cms/config/{$config}.php"));
+        }
+
+        // Creat two site for multi site testing
+        $app['config']->set('statamic.sites', [
+            'sites'   => [
+                'default' => ['name' => 'English', 'locale' => 'en_US', 'url' => '/'],
+                'de'      => ['name' => 'Deutsch', 'locale' => 'de_DE', 'url' => '/de/'],
+            ],
+        ]);
+
+        // Setting the user repository to the default flat file system
+        $app['config']->set('statamic.users.repository', 'file');
+        $app['config']->set('statamic.stache.watcher', false);
+        $app['config']->set('statamic.stache.stores.users', [
+            'class'     => UsersStore::class,
+            'directory' => __DIR__.'/__fixtures/users',
+        ]);
+        // Set the path for our forms
+        $app['config']->set('statamic.forms.forms', __DIR__.'/../resources/forms/');
+
+        // Set the path for our entries
+        $app['config']->set('statamic.stache.stores.taxonomies.directory', __DIR__.'/__fixtures__/content/taxonomies');
+        $app['config']->set('statamic.stache.stores.terms.directory', __DIR__.'/__fixtures__/content/taxonomies');
+        $app['config']->set('statamic.stache.stores.collections.directory', __DIR__.'/__fixtures__/content/collections');
+        $app['config']->set('statamic.stache.stores.entries.directory', __DIR__.'/__fixtures__/content/collections');
+        $app['config']->set('statamic.stache.stores.navigation.directory', __DIR__.'/__fixtures__/content/navigation');
+        $app['config']->set('statamic.stache.stores.globals.directory', __DIR__.'/__fixtures__/content/globals');
+        $app['config']->set('statamic.stache.stores.asset-containers.directory', __DIR__.'/__fixtures__/content/assets');
+
+        // Assume the pro edition within tests
+        $app['config']->set('statamic.editions.pro', true);
+
+        Statamic::pushCpRoutes(function () {
+            return require_once realpath(__DIR__.'/../routes/cp.php');
+        });
+
+        Statamic::pushWebRoutes(function () {
+            return require_once realpath(__DIR__.'/../routes/web.php');
+        });
+
+        // Define butik config settings for all of our tests
+        $app['config']->set('butik', require(__DIR__.'/../config/config.php'));
+
+//        // Set all layouts to null to prevent an error thrown from a layout which could not be found.
+//        $layouts = [
+//            'layout_product-index',
+//            'layout_product-category',
+//            'layout_product-show',
+//            'layout_cart',
+//            'layout_checkout-delivery',
+//            'layout_checkout-payment',
+//            'layout_checkout-receipt',
+//            'layout_checkout-receipt-invalid',
+//        ];
+//
+//        foreach ($layouts as $layout) {
+//            $app['config']->set('butik.'.$layout, null);
+//        }
+    }
+}
