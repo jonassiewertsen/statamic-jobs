@@ -1,0 +1,7 @@
+.DS_Store
+.idea
+build
+vendor
+coverage
+/node_modules/
+.phpunit.result.cache
