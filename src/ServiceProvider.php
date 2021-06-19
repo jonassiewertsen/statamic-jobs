@@ -18,12 +18,12 @@ class ServiceProvider extends AddonServiceProvider
 
             // Blueprints
             $this->publishes([
-                __DIR__ . '/../resources/blueprints' => resource_path('blueprints'),
+                __DIR__.'/../resources/blueprints' => resource_path('blueprints'),
             ], 'jobs-blueprints');
 
             // Collections
             $this->publishes([
-                __DIR__ . '/../resources/collections' => base_path('content/collections'),
+                __DIR__.'/../resources/collections' => base_path('content/collections'),
             ], 'jobs-collections');
         }
     }

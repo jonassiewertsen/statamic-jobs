@@ -45,7 +45,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
                 'failed_at' => $now,
             ]);
 
-            $job->save();
+        $job->save();
 
         return $uuid;
     }
@@ -89,7 +89,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function flush()
     {
-       //
+        //
     }
 
     private function slug(string $uuid, Carbon $now): string

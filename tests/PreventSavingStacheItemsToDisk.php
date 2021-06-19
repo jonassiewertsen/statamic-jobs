@@ -9,6 +9,7 @@ use Statamic\Support\Str;
 trait PreventSavingStacheItemsToDisk
 {
     protected string $fakeStacheDirectory = __DIR__.'/__fixtures__/';
+
     protected array $originStacheDirectories = [];
 
     protected function preventSavingStacheItemsToDisk()
