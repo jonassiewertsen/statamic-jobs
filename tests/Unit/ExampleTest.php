@@ -2,7 +2,7 @@
 
 namespace Jonassiewertsen\Jobs\Tests\Unit;
 
-use Jonassiewertsen\JObs\Tests\TestCase;
+use Jonassiewertsen\Jobs\Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
