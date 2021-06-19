@@ -30,7 +30,7 @@ class TestCase extends OrchestraTestCase
      */
     protected function setUp(): void
     {
-        require_once __DIR__.'/ConsoleKernel.php';
+        require_once __DIR__.'/Kernel.php';
 
         parent::setUp();
 
