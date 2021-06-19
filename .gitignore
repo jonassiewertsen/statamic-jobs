@@ -1,0 +1,8 @@
+.DS_Store
+.idea
+build
+vendor
+coverage
+/node_modules/
+.php-cs-fixer.cache
+.phpunit.result.cache
