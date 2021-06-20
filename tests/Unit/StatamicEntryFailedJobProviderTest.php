@@ -54,7 +54,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     public function a_Single_job_can_be_found()
     {
         $entry = $this->createJobEntry([
-            'uuid'       => Str::uuid(),
+            'uuid'       => (string) Str::uuid(),
             'connection' => 'connection',
             'queue'      => 'queue',
         ]);
@@ -73,6 +73,36 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $provider = new StatamicEntryFailedJobProvider();
 
         $this->assertNull($provider->find('not-existing'));
+    }
+
+    /** @test */
+    public function it_can_forget_a_job()
+    {
+        $entry = $this->createJobEntry([]);
+
+        $provider = new StatamicEntryFailedJobProvider();
+
+        $this->assertCount(1, Entry::all());
+
+        $this->assertTrue($provider->forget($entry->id()));
+        $this->assertFalse($provider->forget('not-existing'));
+
+        $this->assertCount(0, Entry::all());
+    }
+
+    /** @test */
+    public function it_can_flush_all_jobs()
+    {
+        $this->createJobEntry([]);
+        $this->createJobEntry([]);
+
+        $provider = new StatamicEntryFailedJobProvider();
+
+        $this->assertCount(2, Entry::all());
+
+        $provider->flush();
+
+        $this->assertCount(0, Entry::all());
     }
 
     private function createJobEntry(array $data): Entry

@@ -81,7 +81,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     {
         $entry = Entry::find($id);
 
-        if (! $entry) {
+        if (is_null($entry)) {
             return null;
         }
 
@@ -105,7 +105,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function forget($id)
     {
-        //
+        $entry = Entry::find($id);
+
+        if (is_null($entry)) {
+            return false;
+        }
+
+        return $entry->delete();
     }
 
     /**
@@ -115,7 +121,9 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function flush()
     {
-        //
+        Entry::whereCollection($this->collectionName)
+            ->each
+            ->delete();
     }
 
     /**
