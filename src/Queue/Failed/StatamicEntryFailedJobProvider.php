@@ -43,7 +43,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
-         $job = tap(Entry::make()
+        $job = tap(Entry::make()
             ->collection($this->collectionName)
             ->blueprint($this->blueprintName)
             ->slug($this->slug($uuid, $now))
