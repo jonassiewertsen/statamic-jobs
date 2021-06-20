@@ -15,12 +15,12 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function a_failed_job_will_be_properly_logged()
     {
-        $uuid = (string)Str::uuid();
+        $uuid = (string) Str::uuid();
 
         Carbon::setTestNow($now = CarbonImmutable::now());
 
         $exception = new Exception('Something went wrong.');
-        $provider  = new StatamicEntryFailedJobProvider();
+        $provider = new StatamicEntryFailedJobProvider();
 
         $provider->log('connection', 'queue', json_encode(compact('uuid')), $exception);
 
@@ -28,14 +28,14 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $this->assertEquals(Entry::all()->first()->get('uuid'), $uuid);
         $this->assertEquals(Entry::all()->first()->get('failed_at'), $now);
         $this->assertEquals(Entry::all()->first()->get('exception'), $exception);
-        $this->assertEquals(Entry::all()->first()->slug(), $now->format('Ymd_His') . '_' . $uuid);
+        $this->assertEquals(Entry::all()->first()->slug(), $now->format('Ymd_His').'_'.$uuid);
     }
 
     /** @test */
     public function it_can_retrieve_all_failed_jobs()
     {
         $entry = $this->createJobEntry([
-            'uuid'      => (string)Str::uuid(),
+            'uuid'      => (string) Str::uuid(),
             'failed_at' => time(),
         ]);
 

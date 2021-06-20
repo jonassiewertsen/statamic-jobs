@@ -79,7 +79,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        $entry =  Entry::find($id);
+        $entry = Entry::find($id);
 
         if (! $entry) {
             return null;
