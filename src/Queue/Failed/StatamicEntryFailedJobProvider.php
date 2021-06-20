@@ -66,7 +66,9 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function all()
     {
-        //
+        return Entry::whereCollection($this->collectionName)
+            ->map(fn ($entry) => $entry->data()->toArray())
+            ->all();
     }
 
     /**
@@ -77,7 +79,22 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        //
+        $entry =  Entry::find($id);
+
+        if (! $entry) {
+            return null;
+        }
+
+        return (object) [
+            'id' => $entry->id(),
+            'slug' => $entry->slug(),
+            'uuid' => $entry->get('uuid'),
+            'connection' => $entry->get('connection'),
+            'queue' => $entry->get('queue'),
+            'payload' => $entry->get('payload'),
+            'exception' => $entry->get('exception'),
+            'failed_at' => $entry->get('failed_at'),
+        ];
     }
 
     /**
