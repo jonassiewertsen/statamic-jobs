@@ -10,11 +10,13 @@ class ServiceProvider extends AddonServiceProvider
     {
         parent::boot();
 
+        $this->mergeConfigFrom(__DIR__.'/../config/jobs.php', 'statamic.jobs');
+
         if ($this->app->runningInConsole()) {
-//            // Config
-//            $this->publishes([
-//                __DIR__ . '/../config/config.php' => config_path('jobs.php'), // Save inside statamic config files
-//            ], 'jobs-config');
+            // Config
+            $this->publishes([
+                __DIR__.'/../config/jobs.php' => config_path('statamic/jobs.php'),
+            ], 'jobs-config');
 
             // Blueprints
             $this->publishes([

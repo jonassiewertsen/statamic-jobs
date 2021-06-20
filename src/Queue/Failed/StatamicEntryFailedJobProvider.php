@@ -10,11 +10,22 @@ use Statamic\Facades\Entry;
 class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
 {
     /**
+     * The Statamic collection where jobs will be saved.
+     */
+    protected string $collectionName;
+
+    /**
+     * The Statamic blueprint as structure for the entries.
+     */
+    protected string $blueprintName;
+
+    /**
      * Create a new statamic entry failed job provider.
      */
     public function __construct()
     {
-        //
+        $this->collectionName = config('statamic.jobs.collection', 'failed_jobs');
+        $this->blueprintName = config('statamic.jobs.blueprint', 'failed_job');
     }
 
     /**
@@ -32,9 +43,9 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
-        $job = tap(Entry::make()
-            ->collection('failed_jobs')
-            ->blueprint('failed_job')
+         $job = tap(Entry::make()
+            ->collection($this->collectionName)
+            ->blueprint($this->blueprintName)
             ->slug($this->slug($uuid, $now))
             ->data([
                 'uuid' => $uuid,
@@ -90,6 +101,16 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         //
     }
 
+    /**
+     * The entry slug is automatically the file name of Statamic entries.
+     * The slug and thereby the filename will be a combination of the
+     * date and the Jobs UUID to always be unique.
+     *
+     * @param string $uuid
+     * @param Carbon $now
+     *
+     * @return string
+     */
     private function slug(string $uuid, Carbon $now): string
     {
         $time = $now->format('Ymd_His');
