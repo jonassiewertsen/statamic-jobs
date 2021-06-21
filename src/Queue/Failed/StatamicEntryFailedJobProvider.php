@@ -22,7 +22,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     /**
      * Create a new statamic entry failed job provider.
      */
-    public function __construct(array $config)
+    public function __construct(array $config = [])
     {
         $this->collectionName = $config['collection'] ?? 'failed_jobs';
         $this->blueprintName = $config['blueprint'] ?? 'failed_job';
