@@ -19,7 +19,8 @@ I love to share with the community. Nevertheless, it does take a lot of work, ti
 // config/queue.php
 'failed' => [
 'driver' => env('QUEUE_FAILED_DRIVER', 'statamic'),
-// collection stuff
+// 'collection' => env('QUEUE_FAILED_COLLECTION', 'failed_jobs'),
+// 'blueprint' => env('QUEUE_FAILED_BLUEPRINT', 'failed_job'),
 ],
 ```
 

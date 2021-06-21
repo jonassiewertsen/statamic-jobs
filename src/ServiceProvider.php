@@ -13,7 +13,6 @@ class ServiceProvider extends AddonServiceProvider
     {
         parent::boot();
 
-        $this->mergeConfigFrom(__DIR__.'/../config/jobs.php', 'statamic.jobs');
         $this->publishAssets();
 
         if (config('queue.failed.driver') === 'statamic') {
@@ -23,7 +22,6 @@ class ServiceProvider extends AddonServiceProvider
         }
 
         Statamic::afterInstalled(function () {
-            Artisan::call('vendor:publish --tag=jobs-config');
             Artisan::call('vendor:publish --tag=jobs-blueprints');
             Artisan::call('vendor:publish --tag=jobs-collections');
         });
@@ -32,11 +30,6 @@ class ServiceProvider extends AddonServiceProvider
     private function publishAssets(): void
     {
         if ($this->app->runningInConsole()) {
-            // Config
-            $this->publishes([
-                __DIR__.'/../config/jobs.php' => config_path('statamic/jobs.php'),
-            ], 'jobs-config');
-
             // Blueprints
             $this->publishes([
                 __DIR__.'/../resources/blueprints' => resource_path('blueprints'),
