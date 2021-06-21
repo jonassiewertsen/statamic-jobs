@@ -12,6 +12,17 @@ I love to share with the community. Nevertheless, it does take a lot of work, ti
 
 [Sponsor me on GitHub](https://github.com/sponsors/jonassiewertsen/) to support my work and the support for this addon.
 
+# Setup
+1. composer require `jonassiewertsen/statamic-jobs`
+2. Set the queue
+```php
+// config/queue.php
+'failed' => [
+'driver' => env('QUEUE_FAILED_DRIVER', 'statamic'),
+// collection stuff
+],
+```
+
 # License 
 This plugin is published under the MIT license. Feel free to use it and remember to spread love.
 
