@@ -20,7 +20,7 @@ class TestBlueprint
                             ],
                         ],
                     ],
-                ]],
+                ], ],
             ];
         //        handle: uuid
         //        field:

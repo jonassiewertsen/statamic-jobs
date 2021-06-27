@@ -10,7 +10,7 @@ use Statamic\Facades\File;
 use Statamic\Facades\YAML;
 use Statamic\Support\Str;
 
-class  StatamicEntryFailedJobProvider implements FailedJobProviderInterface
+class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
 {
     /**
      * The Statamic collection where jobs will be saved.
