@@ -2,6 +2,7 @@
 
 namespace Jonassiewertsen\Jobs\Tests;
 
+use Illuminate\Support\Facades\File;
 use Statamic\Facades\Path;
 use Statamic\Facades\Stache;
 use Statamic\Support\Str;
@@ -17,7 +18,8 @@ trait PreventSavingStacheItemsToDisk
         $this->fakeStacheDirectory = Path::tidy($this->fakeStacheDirectory);
 
         $this->fakeStores()
-             ->copyCollections();
+             ->copyCollections()
+             ->removeJobsFromStorage();
     }
 
     protected function deleteFakeStacheDirectory(): self
@@ -54,6 +56,13 @@ trait PreventSavingStacheItemsToDisk
             Str::start(__DIR__.'/../resources/collections', '/'), // from
             Stache::store('collections')->directory()                    // to
         );
+
+        return $this;
+    }
+
+    public function removeJobsFromStorage(): self
+    {
+        File::deleteDirectory(storage_path('failed-jobs/'));
 
         return $this;
     }
