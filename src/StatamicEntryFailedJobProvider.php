@@ -47,17 +47,16 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function log($connection, $queue, $payload, $exception)
     {
-        $uuid = json_decode($payload, true)['uuid'];
+        $id = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
         $job = [
-            'id'         => $id = $uuid,
-            'uuid'         => $id,
+            'id'         => $id,
             'connection' => $connection,
             'queue'      => $queue,
             'payload'    => $payload,
             'exception'  => (string) $exception,
-            'failed_at'  => $now->toIso8601String(),
+            'failed_at'  => $now,
         ];
 
         File::put($this->createFileName($id, $now), YAML::dump($job));
@@ -73,7 +72,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     public function all()
     {
         return File::getFiles($this->storagePath)->map(function ($fileName) {
-            return YAML::parse(File::get($fileName));
+            return $this->parseFile($fileName);
         })->all();
     }
 
@@ -85,13 +84,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        $file = File::get($this->getFileName($id));
+        $fileName = $this->getFileName($id);
 
-        if (is_null($file)) {
+        if (is_null($fileName)) {
             return null;
         }
 
-        return (object) YAML::parse($file);
+        return (object) $this->parseFile($fileName);
     }
 
     /**
@@ -155,5 +154,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $time = $now->format('Ymd_His');
 
         return "{$time}_{$id}";
+    }
+
+    private function parseFile(string $fileName)
+    {
+        $file = YAML::parse(File::get($fileName));
+        $file['failed_at'] = isset($file['failed_at']) ? Carbon::parse($file['failed_at']) : null;
+
+        return $file;
     }
 }

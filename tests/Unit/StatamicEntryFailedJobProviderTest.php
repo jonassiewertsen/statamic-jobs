@@ -30,8 +30,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $jobFileName = $this->allJobFiles()->first();
         $job = (object) YAML::parse(File::get($jobFileName));
 
-        $this->assertEquals($job->uuid, $uuid);
-        $this->assertEquals($job->failed_at, $now->toIso8601String());
+        $this->assertEquals($job->id, $uuid);
         $this->assertEquals($job->exception, (string) $exception);
     }
 
@@ -40,7 +39,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     {
         $job = $this->createJobEntry([
             'uuid'      => (string) Str::uuid(),
-            'failed_at' => time(),
+            'failed_at' => now(),
         ]);
 
         $provider = new StatamicEntryFailedJobProvider();
@@ -48,7 +47,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $this->assertEquals(
             [[
                  'uuid'      => $job->uuid,
-                 'failed_at' => $job->failed_at,
+                 'failed_at' => Carbon::parse($job->failed_at),
              ]],
             $provider->all()
         );
@@ -58,16 +57,15 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     public function a_Single_job_can_be_found()
     {
         $job = $this->createJobEntry([
-            'uuid'       => (string) Str::uuid(),
-            'connection' => 'connection',
-            'queue'      => 'queue',
+            'id' => 1,
+            'queue' => 'database',
         ]);
 
         $provider = new StatamicEntryFailedJobProvider();
 
         $this->assertEquals(
-            $job->uuid,
-            $provider->find($job->uuid)->uuid
+            $job->id,
+            $provider->find(1)->id
         );
     }
 
