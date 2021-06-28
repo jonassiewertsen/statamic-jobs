@@ -51,7 +51,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $now = Date::now();
 
         $job = [
-                'id' => $uuid,
+                'id' => (string) Str::uuid(),
                 'uuid' => $uuid,
                 'connection' => $connection,
                 'queue' => $queue,
@@ -124,8 +124,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     }
 
     /**
-     * The entry slug is automatically the file name of Statamic entries.
-     * The slug and thereby the filename will be a combination of the
+     * The slug and thereby the filename will be a combination from the
      * date and the Jobs UUID to always be unique.
      *
      * @param string $uuid
