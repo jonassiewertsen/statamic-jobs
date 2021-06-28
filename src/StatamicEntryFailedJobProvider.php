@@ -47,24 +47,20 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function log($connection, $queue, $payload, $exception)
     {
-        $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
         $job = [
-                'id' => (string) Str::uuid(),
-                'uuid' => $uuid,
-                'connection' => $connection,
-                'queue' => $queue,
-                'payload' => $payload,
-                'exception' => (string) $exception,
-                'failed_at' => $now->toIso8601String(),
-            ];
+            'id'         => $id = (string) Str::uuid(),
+            'connection' => $connection,
+            'queue'      => $queue,
+            'payload'    => $payload,
+            'exception'  => (string)$exception,
+            'failed_at'  => $now->toIso8601String(),
+        ];
 
-        $absoluteFilePath = Str::finish($this->storagePath, '/').$this->slug($uuid, $now).'.yaml';
+        File::put($this->createFileName($id, $now), YAML::dump($job));
 
-        File::put($absoluteFilePath, YAML::dump($job));
-
-        return $job['id'];
+        return $id;
     }
 
     /**
@@ -82,7 +78,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     /**
      * Get a single failed job.
      *
-     * @param  mixed  $id
+     * @param mixed $id
      * @return object|null
      */
     public function find($id)
@@ -93,13 +89,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
             return null;
         }
 
-        return (object) YAML::parse($file);
+        return (object)YAML::parse($file);
     }
 
     /**
      * Delete a single failed job from storage.
      *
-     * @param  mixed  $id
+     * @param mixed $id
      * @return bool
      */
     public function forget($id)
@@ -124,25 +120,38 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     }
 
     /**
+     * @param string $id
+     * @return string|null
+     */
+    private function getFileName(string $id): string|null
+    {
+        return File::getFiles($this->storagePath)
+            ->filter(fn($fileName) => str_contains($fileName, $id))
+            ->first();
+    }
+
+    /**
+     * @param string $id
+     * @param Carbon $now
+     * @return string
+     */
+    private function createFileName(string $id, Carbon $now): string
+    {
+        return Str::finish($this->storagePath, '/').$this->slug($id, $now).'.yaml';
+    }
+
+    /**
      * The slug and thereby the filename will be a combination from the
      * date and the Jobs UUID to always be unique.
      *
-     * @param string $uuid
+     * @param string $id
      * @param Carbon $now
-     *
      * @return string
      */
-    private function slug(string $uuid, Carbon $now): string
+    private function slug(string $id, Carbon $now): string
     {
         $time = $now->format('Ymd_His');
 
-        return "{$time}_{$uuid}";
-    }
-
-    private function getFileName(string $uuid): string | null
-    {
-        return File::getFiles($this->storagePath)
-            ->filter(fn ($fileName) => str_contains($fileName, $uuid))
-            ->first();
+        return "{$time}_{$id}";
     }
 }
