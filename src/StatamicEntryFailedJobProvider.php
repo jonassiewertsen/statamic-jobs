@@ -54,7 +54,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
             'connection' => $connection,
             'queue'      => $queue,
             'payload'    => $payload,
-            'exception'  => (string)$exception,
+            'exception'  => (string) $exception,
             'failed_at'  => $now->toIso8601String(),
         ];
 
@@ -89,7 +89,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
             return null;
         }
 
-        return (object)YAML::parse($file);
+        return (object) YAML::parse($file);
     }
 
     /**
@@ -123,10 +123,10 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      * @param string $id
      * @return string|null
      */
-    private function getFileName(string $id): string|null
+    private function getFileName(string $id): string | null
     {
         return File::getFiles($this->storagePath)
-            ->filter(fn($fileName) => str_contains($fileName, $id))
+            ->filter(fn ($fileName) => str_contains($fileName, $id))
             ->first();
     }
 
