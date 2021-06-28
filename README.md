@@ -2,16 +2,11 @@
 ![Statamic 3.1+](https://img.shields.io/badge/Statamic-3.1+-FF269E?style=for-the-badge&link=https://statamic.com)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jonassiewertsen/statamic-jobs.svg?style=for-the-badge)](https://packagist.org/packages/jonassiewertsen/statamic-jobs)
 
-Laravel does handle failed jobs by default, but does need a database. What if your Statamic setup does not have or need any database?
+Laravel does handle failed jobs by default, but does need a database. What if your Statamic setup does not have or need a database?
 Well ... failing jobs can not be handled!
 
 This addon does provide a simple solution for small Statamic setups:
 A failing job will be saved as flat file in the `storage`. 
-
-You can access your failed jobs via the default artisan commands. Fx.:
-`php artisan queue:failed` <- list all failed jobs
-`php artisan queue:retry JOB_UUID_ID` <- Retry a given job
-`php artisan queue:flush` <- Flush all failed jobs
 
 ## NOT PRODUCTION READY JET
 Be aware, that this is an early version, which shouldn't be used on any production server jet.
@@ -39,6 +34,12 @@ composer require jonassiewertsen/statamic-jobs
     //     'table' => 'failed_jobs',
     // ],
 ```
+
+## Usage
+You can access your failed jobs via the default artisan commands. Fx.:
+`php artisan queue:failed` <- list all failed jobs
+`php artisan queue:retry JOB_UUID_ID` <- Retry a given job
+`php artisan queue:flush` <- Flush all failed jobs
 
 ## Requirements
 - PHP 8.0
