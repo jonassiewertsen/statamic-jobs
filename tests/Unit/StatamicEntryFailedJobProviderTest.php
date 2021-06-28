@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Jonassiewertsen\Jobs\Queue\Failed\StatamicEntryFailedJobProvider;
+use Jonassiewertsen\Jobs\StatamicEntryFailedJobProvider;
 use Jonassiewertsen\Jobs\Tests\TestCase;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;

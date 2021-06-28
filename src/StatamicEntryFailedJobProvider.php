@@ -1,11 +1,10 @@
 <?php
 
-namespace Jonassiewertsen\Jobs\Queue\Failed;
+namespace Jonassiewertsen\Jobs;
 
 use Illuminate\Queue\Failed\FailedJobProviderInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
-use Statamic\Facades\Entry;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;
 use Statamic\Support\Str;
@@ -52,24 +51,21 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
-        $job = Entry::make()
-            ->collection($this->collectionName)
-            ->blueprint($this->blueprintName)
-            ->slug($this->slug($uuid, $now))
-            ->data([
+        $job = [
+                'id' => $uuid,
                 'uuid' => $uuid,
                 'connection' => $connection,
                 'queue' => $queue,
                 'payload' => $payload,
                 'exception' => $exception,
                 'failed_at' => $now->toIso8601String(),
-            ]);
+            ];
 
         $absoluteFilePath = Str::finish($this->storagePath, '/').$this->slug($uuid, $now).'.yaml';
 
-        File::put($absoluteFilePath, YAML::dump($job->data()->all()));
+        File::put($absoluteFilePath, YAML::dump($job));
 
-        return $job->id();
+        return $job['id'];
     }
 
     /**
