@@ -35,8 +35,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $this->assertEquals($job->uuid, $uuid);
         $this->assertEquals($job->failed_at, $now->toIso8601String());
-        $this->assertStringContainsString('Something went wrong.', $job->exception);
-//        $this->assertEquals($job->exception, (string) $exception);
+        $this->assertEquals((string) $job->exception, (string) $exception);
     }
 
     /** @test */
