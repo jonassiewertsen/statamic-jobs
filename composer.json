@@ -28,7 +28,7 @@
   },
   "require": {
     "php": "^8.0",
-    "illuminate/support": "^8.0",
+    "illuminate/support": "^8.40",
     "statamic/cms": "3.1.*"
   },
   "require-dev": {
