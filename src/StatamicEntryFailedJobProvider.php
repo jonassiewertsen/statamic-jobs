@@ -47,10 +47,12 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function log($connection, $queue, $payload, $exception)
     {
+        $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
         $job = [
-            'id'         => $id = (string) Str::uuid(),
+            'id'         => $id = $uuid,
+            'uuid'         => $id,
             'connection' => $connection,
             'queue'      => $queue,
             'payload'    => $payload,

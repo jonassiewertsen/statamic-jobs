@@ -17,20 +17,20 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function a_failed_job_will_be_properly_logged()
     {
+        $uuid = (string) Str::uuid();
         Carbon::setTestNow($now = CarbonImmutable::now());
 
         $exception = new Exception('Something went wrong.');
         $provider = new StatamicEntryFailedJobProvider();
 
-        $provider->log('connection', 'queue', 'some payload', $exception);
+        $provider->log('connection', 'queue', json_encode(compact('uuid')), $exception);
 
         $this->assertCount(1, $this->allJobFiles());
 
         $jobFileName = $this->allJobFiles()->first();
         $job = (object) YAML::parse(File::get($jobFileName));
 
-        $this->assertTrue(str_contains($jobFileName, $job->id));
-
+        $this->assertEquals($job->uuid, $uuid);
         $this->assertEquals($job->failed_at, $now->toIso8601String());
         $this->assertEquals($job->exception, (string) $exception);
     }
