@@ -92,13 +92,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        $job = (object) YAML::parse(File::get($this->getFileName($id)));
+        $file = File::get($this->getFileName($id));
 
-        if (is_null($job)) {
+        if (is_null($file)) {
             return null;
         }
 
-        return $job;
+        return (object) YAML::parse($file);
     }
 
     /**
@@ -125,7 +125,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function flush()
     {
-        File::cleanDirectory($this->storagePath);
+        File::delete($this->storagePath);
     }
 
     /**
@@ -147,8 +147,8 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
 
     private function getFileName(string $uuid): string | null
     {
-        return File::getFiles($this->storagePath)->filter(function ($fileName) use ($uuid) {
-            return str_contains($fileName, $uuid);
-        })->first();
+        return File::getFiles($this->storagePath)
+            ->filter(fn ($fileName) => str_contains($fileName, $uuid))
+            ->first();
     }
 }

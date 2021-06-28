@@ -8,9 +8,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Jonassiewertsen\Jobs\Queue\Failed\StatamicEntryFailedJobProvider;
 use Jonassiewertsen\Jobs\Tests\TestCase;
-use Statamic\Entries\Entry;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;
+use Statamic\Support\FileCollection;
 
 class StatamicEntryFailedJobProviderTest extends TestCase
 {
@@ -26,9 +26,9 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $provider->log('connection', 'queue', json_encode(compact('uuid')), $exception);
 
-        $this->assertCount(1, File::getFiles(storage_path('failed-jobs/')));
+        $this->assertCount(1, $this->allJobFiles());
 
-        $jobFileName = File::getFiles(storage_path('failed-jobs/'))->first();
+        $jobFileName = $this->allJobFiles()->first();
         $this->assertTrue(str_contains($jobFileName, $now->format('Ymd_His').'_'.$uuid.'.yaml'));
 
         $job = (object) YAML::parse(File::get($jobFileName));
@@ -69,8 +69,8 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $provider = new StatamicEntryFailedJobProvider();
 
         $this->assertEquals(
-            $job->id,
-            $provider->find($job->id())->id
+            $job->uuid,
+            $provider->find($job->uuid)->uuid
         );
     }
 
@@ -85,16 +85,16 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function it_can_forget_a_job()
     {
-        $entry = $this->createJobEntry([]);
+        $job = $this->createJobEntry(['id' => 1]);
 
         $provider = new StatamicEntryFailedJobProvider();
 
-        $this->assertCount(1, Entry::all());
+        $this->assertCount(1, $this->allJobFiles());
 
-        $this->assertTrue($provider->forget($entry->id()));
+        $this->assertTrue($provider->forget($job->id));
         $this->assertFalse($provider->forget('not-existing'));
 
-        $this->assertCount(0, Entry::all());
+        $this->assertCount(0, $this->allJobFiles());
     }
 
     /** @test */
@@ -105,21 +105,27 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $provider = new StatamicEntryFailedJobProvider();
 
-        $this->assertCount(2, Entry::all());
+        $this->assertCount(2, $this->allJobFiles());
 
         $provider->flush();
 
-        $this->assertCount(0, Entry::all());
+        $this->assertCount(0, $this->allJobFiles());
     }
 
     private function createJobEntry(array $data): object
     {
+        $uuid = $data['uuid'] ?? Str::uuid();
         $time = now()->format('Ymd_His');
-        $fileName = "{$time}_{$data['uuid']}";
+        $fileName = "{$time}_{$uuid}";
         $absoluteFilePath = storage_path('failed-jobs/').$fileName.'.yaml';
 
         File::put($absoluteFilePath, YAML::dump($data));
 
         return (object) YAML::parse(File::get($absoluteFilePath));
+    }
+
+    private function allJobFiles(): FileCollection
+    {
+        return File::getFiles(storage_path('failed-jobs/'));
     }
 }
