@@ -33,6 +33,8 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $job = (object) YAML::parse(File::get($jobFileName));
 
+        dd($job, $job->exception, $jobFileName);
+
         $this->assertEquals($job->uuid, $uuid);
         $this->assertEquals($job->failed_at, $now->toIso8601String());
         $this->assertEquals($job->exception, (string) $exception);
