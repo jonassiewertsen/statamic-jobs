@@ -29,7 +29,8 @@
   "require": {
     "php": "^8.0",
     "illuminate/support": "^8.40",
-    "statamic/cms": "3.1.25"
+    "statamic/cms": "^3.1.25",
+    "symfony/filesystem": "^5.3.0"
   },
   "require-dev": {
     "orchestra/testbench": "^6.0",
