@@ -6,7 +6,7 @@ use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Jonassiewertsen\Jobs\StatamicEntryFailedJobProvider;
+use Jonassiewertsen\Jobs\FileFailedJobProvider;
 use Jonassiewertsen\Jobs\Tests\TestCase;
 use Statamic\Facades\File;
 use Statamic\Facades\YAML;
@@ -21,7 +21,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         Carbon::setTestNow(CarbonImmutable::now());
 
         $exception = new Exception('Something went wrong.');
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $provider->log('connection', 'queue', json_encode(compact('uuid')), $exception);
 
@@ -42,7 +42,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
             'failed_at' => now(),
         ]);
 
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $this->assertEquals(
             [[
@@ -61,7 +61,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
             'queue' => 'database',
         ]);
 
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $this->assertEquals(
             $job->id,
@@ -72,7 +72,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function returns_null_if_the_job_cant_be_found()
     {
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $this->assertNull($provider->find('not-existing'));
     }
@@ -82,7 +82,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     {
         $job = $this->createJobEntry(['id' => 1]);
 
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $this->assertCount(1, $this->allJobFiles());
 
@@ -98,7 +98,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $this->createJobEntry([]);
         $this->createJobEntry([]);
 
-        $provider = new StatamicEntryFailedJobProvider();
+        $provider = new FileFailedJobProvider();
 
         $this->assertCount(2, $this->allJobFiles());
 

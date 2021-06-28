@@ -10,14 +10,14 @@ class ServiceProvider extends AddonServiceProvider
     {
         parent::boot();
 
-        $this->bootStatamicFailedJobProvider();
+        $this->bootFileFailedJobProvider();
     }
 
-    private function bootStatamicFailedJobProvider(): self
+    private function bootFileFailedJobProvider(): self
     {
-        if (config('queue.failed.driver') === 'statamic') {
+        if (config('queue.failed.driver') === 'file') {
             $this->app->singleton('queue.failer', function ($app) {
-                return new StatamicEntryFailedJobProvider($app['config']['queue.failed']);
+                return new FileFailedJobProvider($app['config']['queue.failed']);
             });
         }
 
