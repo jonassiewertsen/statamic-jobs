@@ -20,6 +20,7 @@ jobs:
                 include:
                   - laravel: 8.*
                     testbench: 6.*
+                    laravel-constraint: ^8.18.1
 
         name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.dependency-version }} - ${{ matrix.os }}
 
@@ -36,7 +37,7 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" ${{ matrix.additional-deps }} --no-interaction --no-update
+                  composer require "laravel/framework:${{ matrix.laravel-constraint || matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" ${{ matrix.additional-deps }} --no-interaction --no-update
                   composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
             - name: Run PHPUnit
               run: composer test
