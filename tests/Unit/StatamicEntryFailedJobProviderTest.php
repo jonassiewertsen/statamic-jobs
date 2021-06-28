@@ -18,7 +18,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     public function a_failed_job_will_be_properly_logged()
     {
         $uuid = (string) Str::uuid();
-        Carbon::setTestNow($now = CarbonImmutable::now());
+        Carbon::setTestNow(CarbonImmutable::now());
 
         $exception = new Exception('Something went wrong.');
         $provider = new StatamicEntryFailedJobProvider();

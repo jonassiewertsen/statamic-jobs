@@ -12,16 +12,6 @@ use Statamic\Support\Str;
 class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
 {
     /**
-     * The Statamic collection where jobs will be saved.
-     */
-    protected string $collectionName;
-
-    /**
-     * The Statamic blueprint as structure for the entries.
-     */
-    protected string $blueprintName;
-
-    /**
      * Failed Jobs will be saved in this directory.
      */
     protected string $storagePath;
@@ -31,9 +21,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function __construct(array $config = [])
     {
-        $this->storagePath = $config['storagePath'] ?? storage_path('failed-jobs/');
-        $this->collectionName = $config['collection'] ?? 'failed_jobs';
-        $this->blueprintName = $config['blueprint'] ?? 'failed_job';
+        $this->storagePath = $config['storage_path'] ?? storage_path('failed-jobs');
     }
 
     /**
