@@ -6,9 +6,11 @@ use Carbon\CarbonImmutable;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
-use Jonassiewertsen\Jobs\Queue\Failed\StatamicEntryFailedJobProvider;
+use Jonassiewertsen\Jobs\StatamicEntryFailedJobProvider;
 use Jonassiewertsen\Jobs\Tests\TestCase;
-use Statamic\Entries\Entry;
+use Statamic\Facades\File;
+use Statamic\Facades\YAML;
+use Statamic\Support\FileCollection;
 
 class StatamicEntryFailedJobProviderTest extends TestCase
 {
@@ -24,17 +26,22 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $provider->log('connection', 'queue', json_encode(compact('uuid')), $exception);
 
-        $this->assertCount(1, Entry::all());
-        $this->assertEquals(Entry::all()->first()->get('uuid'), $uuid);
-        $this->assertEquals(Entry::all()->first()->get('failed_at'), $now);
-        $this->assertEquals(Entry::all()->first()->get('exception'), $exception);
-        $this->assertEquals(Entry::all()->first()->slug(), $now->format('Ymd_His').'_'.$uuid);
+        $this->assertCount(1, $this->allJobFiles());
+
+        $jobFileName = $this->allJobFiles()->first();
+        $this->assertTrue(str_contains($jobFileName, $now->format('Ymd_His').'_'.$uuid.'.yaml'));
+
+        $job = (object) YAML::parse(File::get($jobFileName));
+
+        $this->assertEquals($job->uuid, $uuid);
+        $this->assertEquals($job->failed_at, $now->toIso8601String());
+        $this->assertEquals($job->exception, (string) $exception);
     }
 
     /** @test */
     public function it_can_retrieve_all_failed_jobs()
     {
-        $entry = $this->createJobEntry([
+        $job = $this->createJobEntry([
             'uuid'      => (string) Str::uuid(),
             'failed_at' => time(),
         ]);
@@ -43,8 +50,8 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $this->assertEquals(
             [[
-                 'uuid'      => $entry->get('uuid'),
-                 'failed_at' => $entry->get('failed_at'),
+                 'uuid'      => $job->uuid,
+                 'failed_at' => $job->failed_at,
              ]],
             $provider->all()
         );
@@ -53,7 +60,7 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function a_Single_job_can_be_found()
     {
-        $entry = $this->createJobEntry([
+        $job = $this->createJobEntry([
             'uuid'       => (string) Str::uuid(),
             'connection' => 'connection',
             'queue'      => 'queue',
@@ -62,8 +69,8 @@ class StatamicEntryFailedJobProviderTest extends TestCase
         $provider = new StatamicEntryFailedJobProvider();
 
         $this->assertEquals(
-            $entry->id(),
-            $provider->find($entry->id())->id
+            $job->uuid,
+            $provider->find($job->uuid)->uuid
         );
     }
 
@@ -78,16 +85,16 @@ class StatamicEntryFailedJobProviderTest extends TestCase
     /** @test */
     public function it_can_forget_a_job()
     {
-        $entry = $this->createJobEntry([]);
+        $job = $this->createJobEntry(['id' => 1]);
 
         $provider = new StatamicEntryFailedJobProvider();
 
-        $this->assertCount(1, Entry::all());
+        $this->assertCount(1, $this->allJobFiles());
 
-        $this->assertTrue($provider->forget($entry->id()));
+        $this->assertTrue($provider->forget($job->id));
         $this->assertFalse($provider->forget('not-existing'));
 
-        $this->assertCount(0, Entry::all());
+        $this->assertCount(0, $this->allJobFiles());
     }
 
     /** @test */
@@ -98,18 +105,27 @@ class StatamicEntryFailedJobProviderTest extends TestCase
 
         $provider = new StatamicEntryFailedJobProvider();
 
-        $this->assertCount(2, Entry::all());
+        $this->assertCount(2, $this->allJobFiles());
 
         $provider->flush();
 
-        $this->assertCount(0, Entry::all());
+        $this->assertCount(0, $this->allJobFiles());
     }
 
-    private function createJobEntry(array $data): Entry
+    private function createJobEntry(array $data): object
     {
-        return tap(Entry::make()
-            ->collection('failed_jobs')
-            ->blueprint('failed_job')
-            ->data($data))->save();
+        $uuid = $data['uuid'] ?? Str::uuid();
+        $time = now()->format('Ymd_His');
+        $fileName = "{$time}_{$uuid}";
+        $absoluteFilePath = storage_path('failed-jobs/').$fileName.'.yaml';
+
+        File::put($absoluteFilePath, YAML::dump($data));
+
+        return (object) YAML::parse(File::get($absoluteFilePath));
+    }
+
+    private function allJobFiles(): FileCollection
+    {
+        return File::getFiles(storage_path('failed-jobs/'));
     }
 }

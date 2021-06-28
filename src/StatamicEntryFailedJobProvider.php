@@ -1,11 +1,13 @@
 <?php
 
-namespace Jonassiewertsen\Jobs\Queue\Failed;
+namespace Jonassiewertsen\Jobs;
 
 use Illuminate\Queue\Failed\FailedJobProviderInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Date;
-use Statamic\Facades\Entry;
+use Statamic\Facades\File;
+use Statamic\Facades\YAML;
+use Statamic\Support\Str;
 
 class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
 {
@@ -20,10 +22,16 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
     protected string $blueprintName;
 
     /**
+     * Failed Jobs will be saved in this directory.
+     */
+    protected string $storagePath;
+
+    /**
      * Create a new statamic entry failed job provider.
      */
     public function __construct(array $config = [])
     {
+        $this->storagePath = $config['storagePath'] ?? storage_path('failed-jobs/');
         $this->collectionName = $config['collection'] ?? 'failed_jobs';
         $this->blueprintName = $config['blueprint'] ?? 'failed_job';
     }
@@ -39,24 +47,24 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function log($connection, $queue, $payload, $exception)
     {
-        $exception = (string) $exception;
         $uuid = json_decode($payload, true)['uuid'];
         $now = Date::now();
 
-        $job = tap(Entry::make()
-            ->collection($this->collectionName)
-            ->blueprint($this->blueprintName)
-            ->slug($this->slug($uuid, $now))
-            ->data([
+        $job = [
+                'id' => $uuid,
                 'uuid' => $uuid,
                 'connection' => $connection,
                 'queue' => $queue,
                 'payload' => $payload,
-                'exception' => $exception,
-                'failed_at' => $now,
-            ]))->save();
+                'exception' => (string) $exception,
+                'failed_at' => $now->toIso8601String(),
+            ];
 
-        return $job->id();
+        $absoluteFilePath = Str::finish($this->storagePath, '/').$this->slug($uuid, $now).'.yaml';
+
+        File::put($absoluteFilePath, YAML::dump($job));
+
+        return $job['id'];
     }
 
     /**
@@ -66,9 +74,9 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function all()
     {
-        return Entry::whereCollection($this->collectionName)
-            ->map(fn ($entry) => $entry->data()->toArray())
-            ->all();
+        return File::getFiles($this->storagePath)->map(function ($fileName) {
+            return YAML::parse(File::get($fileName));
+        })->all();
     }
 
     /**
@@ -79,22 +87,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function find($id)
     {
-        $entry = Entry::find($id);
+        $file = File::get($this->getFileName($id));
 
-        if (is_null($entry)) {
+        if (is_null($file)) {
             return null;
         }
 
-        return (object) [
-            'id' => $entry->id(),
-            'slug' => $entry->slug(),
-            'uuid' => $entry->get('uuid'),
-            'connection' => $entry->get('connection'),
-            'queue' => $entry->get('queue'),
-            'payload' => $entry->get('payload'),
-            'exception' => $entry->get('exception'),
-            'failed_at' => $entry->get('failed_at'),
-        ];
+        return (object) YAML::parse($file);
     }
 
     /**
@@ -105,13 +104,13 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function forget($id)
     {
-        $entry = Entry::find($id);
+        $filename = $this->getFileName($id);
 
-        if (is_null($entry)) {
+        if (is_null($filename)) {
             return false;
         }
 
-        return $entry->delete();
+        return File::delete($filename);
     }
 
     /**
@@ -121,9 +120,7 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
      */
     public function flush()
     {
-        Entry::whereCollection($this->collectionName)
-            ->each
-            ->delete();
+        File::delete($this->storagePath);
     }
 
     /**
@@ -141,5 +138,12 @@ class StatamicEntryFailedJobProvider implements FailedJobProviderInterface
         $time = $now->format('Ymd_His');
 
         return "{$time}_{$uuid}";
+    }
+
+    private function getFileName(string $uuid): string | null
+    {
+        return File::getFiles($this->storagePath)
+            ->filter(fn ($fileName) => str_contains($fileName, $uuid))
+            ->first();
     }
 }
