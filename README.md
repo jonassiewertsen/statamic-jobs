@@ -3,6 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jonassiewertsen/statamic-jobs.svg?style=for-the-badge)](https://packagist.org/packages/jonassiewertsen/statamic-jobs)
 
 Laravel does handle failed jobs by default, but does need a database. What if your Statamic setup does not have or need a database?
+
 Well ... failing jobs can not be handled!
 
 This addon does provide a simple solution for small Statamic setups:
@@ -37,8 +38,11 @@ composer require jonassiewertsen/statamic-jobs
 
 ## Usage
 You can access your failed jobs via the default artisan commands. Fx.:
+
 `php artisan queue:failed` <- list all failed jobs
+
 `php artisan queue:retry JOB_UUID_ID` <- Retry a given job
+
 `php artisan queue:flush` <- Flush all failed jobs
 
 ## Requirements
