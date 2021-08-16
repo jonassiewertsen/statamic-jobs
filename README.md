@@ -1,6 +1,8 @@
+<!-- statamic:hide -->
 # Statamic Jobs
 ![Statamic 3.1+](https://img.shields.io/badge/Statamic-3.1+-FF269E?style=for-the-badge&link=https://statamic.com)
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/jonassiewertsen/statamic-jobs.svg?style=for-the-badge)](https://packagist.org/packages/jonassiewertsen/statamic-jobs)
+<!-- /statamic:hide -->
 
 Laravel does handle failed jobs by default, but does need a database. What if your Statamic setup does not have or need a database?
 
@@ -9,8 +11,8 @@ Well ... failing jobs can not be handled!
 This addon does provide a simple solution for small Statamic setups:
 A failing job will be saved as flat file in the `storage`. 
 
-## NOT PRODUCTION READY YET
-Be aware, that this is an early version, which shouldn't be used on any production server yet.
+> **NOT PRODUCTION READY YET**
+> Be aware, that this is an early version, which shouldn't be used on any production server yet.
 
 ## Installation
 
@@ -50,12 +52,12 @@ You can access your failed jobs via the default artisan commands. Fx.:
 - Laravel 8
 - Statamic >= 3.1
 
-# Support
+## Support
 I love to share with the community. Nevertheless, it does take a lot of work, time and effort. 
 
 [Sponsor me on GitHub](https://github.com/sponsors/jonassiewertsen/) to support my work and the support for this addon.
 
-# Setup
+## Setup
 1. composer require `jonassiewertsen/statamic-jobs`
 2. Set the queue
 ```php
@@ -67,6 +69,6 @@ I love to share with the community. Nevertheless, it does take a lot of work, ti
 ],
 ```
 
-# License 
+## License 
 This plugin is published under the MIT license. Feel free to use it and remember to spread love.
 
