@@ -11,9 +11,6 @@ Well ... failing jobs can not be handled!
 This addon does provide a simple solution for small Statamic setups:
 A failing job will be saved as flat file in the `storage`. 
 
-> **NOT PRODUCTION READY YET**
-> Be aware, that this is an early version, which shouldn't be used on any production server yet.
-
 ## Installation
 
 ### 1. Require the package
