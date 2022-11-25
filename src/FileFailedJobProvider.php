@@ -103,7 +103,7 @@ class FileFailedJobProvider implements FailedJobProviderInterface
      *
      * @return void
      */
-    public function flush()
+    public function flush($hours = null)
     {
         File::delete($this->storagePath);
     }
