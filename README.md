@@ -46,8 +46,8 @@ You can access your failed jobs via the default artisan commands. Fx.:
 `php artisan queue:flush` <- Flush all failed jobs
 
 ## Requirements
-- PHP 8.0
-- Laravel 8
+- PHP >= 8.0
+- Laravel 8 || 9
 - Statamic >= 3.1
 
 ## Support
