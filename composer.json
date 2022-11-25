@@ -44,6 +44,7 @@
     "sort-packages": true,
     "allow-plugins": {
       "pixelfear/composer-dist-plugin": true
+    }
   },
   "extra": {
     "statamic": {
