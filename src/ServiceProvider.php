@@ -16,5 +16,4 @@ class ServiceProvider extends AddonServiceProvider
 
         return $this;
     }
-        
 }
