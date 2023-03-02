@@ -47,8 +47,8 @@ You can access your failed jobs via the default artisan commands. Fx.:
 
 ## Requirements
 - PHP >= 8.0
-- Laravel 8 || 9
-- Statamic >= 3.1
+- Laravel 9
+- Statamic >= 3.2
 
 ## Support
 I love to share with the community. Nevertheless, it does take a lot of work, time and effort. 
