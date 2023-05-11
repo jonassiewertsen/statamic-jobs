@@ -32,8 +32,8 @@
     "statamic/cms": "^4.0"
   },
   "require-dev": {
-    "orchestra/testbench": "^8.0 || ^7.0",
-    "phpunit/phpunit": "^10.1 || ^9.3"
+    "orchestra/testbench": "^8.0",
+    "phpunit/phpunit": "^10.1"
   },
   "scripts": {
     "test": "vendor/bin/phpunit",
