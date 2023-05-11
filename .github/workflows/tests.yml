@@ -4,7 +4,6 @@ on:
     push:
     pull_request:
 
-
 jobs:
     php-tests:
         runs-on: ${{ matrix.os }}
