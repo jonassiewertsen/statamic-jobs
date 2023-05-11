@@ -1,8 +1,9 @@
 name: Run Tests
 
 on:
-  push:
-  pull_request:
+    push:
+    pull_request:
+
 
 jobs:
     php-tests:
