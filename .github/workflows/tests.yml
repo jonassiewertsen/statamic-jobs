@@ -17,7 +17,6 @@ jobs:
                 include:
                   - laravel: 9.*
                     testbench: 7.*
-                    laravel-constraint: ^8.18.1
                   - laravel: 10.*
                     testbench: 8.*
 
